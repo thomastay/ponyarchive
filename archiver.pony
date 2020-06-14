@@ -70,6 +70,7 @@ actor Archiver
     let arch = @archive_read_new()
     let ext = @archive_write_disk_new()
     var entry = _ArchEntryptr
+    // TODO: find a way to extract to a different directory
     // let tmp_dir = "data"
     //  try
     //    FilePath.mkdtemp(env.root as AmbientAuth, "temp-dir")?
@@ -101,22 +102,20 @@ actor Archiver
       check(err, ext, out)?
 
       // Read files from archive and write them to disk
-      try
-        err = @archive_read_next_header(arch, addressof entry)
-        while err != archive_EOF do 
-          check(err, arch, out)?
-          err = @archive_write_header(ext, entry)
-          check(err, ext, out)?
-          if @archive_entry_size(entry) > 0 then
-            copyData(arch, ext, out)?
-          end
-          err = @archive_write_finish_entry(ext)
-          check(err, ext, out)?
+      err = @archive_read_next_header(arch, addressof entry)
+      while err != archive_EOF do 
+        check(err, arch, out)?
+        err = @archive_write_header(ext, entry)
+        check(err, ext, out)?
+        if @archive_entry_size(entry) > 0 then
+          copyData(arch, ext, out)?
+        end
+        err = @archive_write_finish_entry(ext)
+        check(err, ext, out)?
 
-          // loop
-          err = @archive_read_next_header(arch, addressof entry)
-        end // end while
-      end // end of try-catch for while loop
+        // loop
+        err = @archive_read_next_header(arch, addressof entry)
+      end // end while
       @archive_read_free(arch)
       @archive_write_free(ext)
       Debug("Archiver: Extraction complete")
