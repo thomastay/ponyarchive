@@ -1,0 +1,1 @@
+see the vendored [README](vendor/README.md) for more details.
